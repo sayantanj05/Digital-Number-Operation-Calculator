@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Number Operations</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      padding: 2rem;
+    }
+    .section {
+      margin-top: 2rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 class="text-center">Digital Number Operation Calculator</h2>
+    <div class="d-grid gap-2">
+      <button class="btn btn-primary" onclick="showSection('binary')">Binary Operations</button>
+      <button class="btn btn-success" onclick="showSection('decimal')">Decimal Operations</button>
+      <button class="btn btn-warning" onclick="showSection('octal')">Octal Operations</button>
+      <button class="btn btn-danger" onclick="showSection('hex')">Hexadecimal Operations</button>
+    </div>
+
+    <!-- Binary Section -->
+    <div id="binary" class="section">
+      <h4>Binary Operation</h4>
+      <input type="text" id="binary1" class="form-control" placeholder="Enter first binary number">
+      <input type="text" id="binary2" class="form-control mt-2" placeholder="Enter second binary number">
+      <select id="binaryOp" class="form-control mt-2">
+        <option value="add">Addition</option>
+        <option value="sub">Subtraction</option>
+        <option value="mul">Multiplication</option>
+        <option value="div">Division</option>
+      </select>
+      <button class="btn btn-primary mt-2" onclick="calculate('binary', 2)">Calculate</button>
+      <p id="binaryResult" class="mt-2"></p>
+    </div>
+
+    <!-- Decimal Section -->
+    <div id="decimal" class="section">
+      <h4>Decimal Operation</h4>
+      <input type="number" step="any" id="decimal1" class="form-control" placeholder="Enter first decimal number">
+      <input type="number" step="any" id="decimal2" class="form-control mt-2" placeholder="Enter second decimal number">
+      <select id="decimalOp" class="form-control mt-2">
+        <option value="add">Addition</option>
+        <option value="sub">Subtraction</option>
+        <option value="mul">Multiplication</option>
+        <option value="div">Division</option>
+      </select>
+      <button class="btn btn-success mt-2" onclick="calculate('decimal', 10)">Calculate</button>
+      <p id="decimalResult" class="mt-2"></p>
+    </div>
+
+    <!-- Octal Section -->
+    <div id="octal" class="section">
+      <h4>Octal Operation</h4>
+      <input type="text" id="octal1" class="form-control" placeholder="Enter first octal number">
+      <input type="text" id="octal2" class="form-control mt-2" placeholder="Enter second octal number">
+      <select id="octalOp" class="form-control mt-2">
+        <option value="add">Addition</option>
+        <option value="sub">Subtraction</option>
+        <option value="mul">Multiplication</option>
+        <option value="div">Division</option>
+      </select>
+      <button class="btn btn-warning mt-2" onclick="calculate('octal', 8)">Calculate</button>
+      <p id="octalResult" class="mt-2"></p>
+    </div>
+
+    <!-- Hexadecimal Section -->
+    <div id="hex" class="section">
+      <h4>Hexadecimal Operation</h4>
+      <input type="text" id="hex1" class="form-control" placeholder="Enter first hexadecimal number">
+      <input type="text" id="hex2" class="form-control mt-2" placeholder="Enter second hexadecimal number">
+      <select id="hexOp" class="form-control mt-2">
+        <option value="add">Addition</option>
+        <option value="sub">Subtraction</option>
+        <option value="mul">Multiplication</option>
+        <option value="div">Division</option>
+      </select>
+      <button class="btn btn-danger mt-2" onclick="calculate('hex', 16)">Calculate</button>
+      <p id="hexResult" class="mt-2"></p>
+    </div>
+  </div>
+
+  <script>
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+      document.getElementById(sectionId).style.display = 'block';
+    }
+
+    function isValidFloatInBase(value, base) {
+      const parts = value.split('.');
+      const regex = {
+        2: /^[01]+$/,
+        8: /^[0-7]+$/,
+        16: /^[0-9a-fA-F]+$/
+      };
+      if (parts.length > 2) return false;
+      return parts.every(part => regex[base].test(part));
+    }
+
+    function parseBaseFloat(str, base) {
+      if (!str.includes('.')) return parseInt(str, base);
+
+      const [intPart, fracPart] = str.split('.');
+      let intVal = parseInt(intPart, base);
+      let fracVal = 0;
+
+      for (let i = 0; i < fracPart.length; i++) {
+        const digit = parseInt(fracPart[i], base);
+        if (isNaN(digit)) return NaN;
+        fracVal += digit / Math.pow(base, i + 1);
+      }
+
+      return intVal + fracVal;
+    }
+
+    function calculate(type, base) {
+      let val1, val2, op, n1, n2, result;
+
+      const input1 = document.getElementById(`${type}1`).value.trim();
+      const input2 = document.getElementById(`${type}2`).value.trim();
+      op = document.getElementById(`${type}Op`).value;
+
+      if (type === 'decimal') {
+        n1 = parseFloat(input1);
+        n2 = parseFloat(input2);
+        if (isNaN(n1) || isNaN(n2)) {
+          document.getElementById(`${type}Result`).textContent = '❌ Invalid decimal input';
+          return;
+        }
+      } else {
+        if (!isValidFloatInBase(input1, base) || !isValidFloatInBase(input2, base)) {
+          document.getElementById(`${type}Result`).textContent = `❌ Invalid ${type} input`;
+          return;
+        }
+        n1 = parseBaseFloat(input1, base);
+        n2 = parseBaseFloat(input2, base);
+      }
+
+      switch (op) {
+        case 'add': result = n1 + n2; break;
+        case 'sub': result = n1 - n2; break;
+        case 'mul': result = n1 * n2; break;
+        case 'div': result = n2 !== 0 ? n1 / n2 : 'Undefined (division by zero)'; break;
+      }
+
+      if (typeof result === 'number' && isFinite(result)) {
+        let finalResult;
+        if (type === 'decimal') {
+          finalResult = result.toFixed(6);
+        } else {
+          const intPart = Math.floor(result);
+          let fracPart = result - intPart;
+          let fracStr = '';
+          for (let i = 0; i < 10 && fracPart !== 0; i++) {
+            fracPart *= base;
+            const digit = Math.floor(fracPart);
+            fracStr += base === 16 ? digit.toString(base).toUpperCase() : digit.toString(base);
+            fracPart -= digit;
+          }
+          finalResult = intPart.toString(base);
+          if (fracStr) finalResult += '.' + fracStr;
+          if (type === 'hex') finalResult = finalResult.toUpperCase();
+        }
+        document.getElementById(`${type}Result`).textContent = `✅ Result: ${finalResult}`;
+      } else {
+        document.getElementById(`${type}Result`).textContent = `❌ Error in calculation`;
+      }
+    }
+  </script>
+</body>
+</html>
